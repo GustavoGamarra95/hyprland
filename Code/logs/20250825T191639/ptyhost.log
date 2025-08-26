@@ -1,0 +1,1 @@
+2025-08-25 19:17:28.746 [error] Failed to set sticky bit on /tmp/iseeyou-code-zsh: Error: ENOENT: no such file or directory, chmod '/tmp/iseeyou-code-zsh'

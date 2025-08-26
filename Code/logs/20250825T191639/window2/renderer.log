@@ -1,0 +1,10 @@
+2025-08-25 19:32:25.478 [warning] Via 'product.json#extensionEnabledApiProposals' extension 'ms-vsliveshare.vsliveshare' wants API proposal 'notebookCellExecutionState' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-08-25 19:32:25.489 [warning] Via 'product.json#extensionEnabledApiProposals' extension 'ms-python.gather' wants API proposal 'notebookCellExecutionState' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-08-25 19:32:25.489 [warning] Via 'product.json#extensionEnabledApiProposals' extension 'ms-python.vscode-pylance' wants API proposal 'mcpConfigurationProvider' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-08-25 19:32:25.702 [info] ChatSessionStore: Migrating 0 chat sessions from storage service to file system
+2025-08-25 19:32:25.809 [info] Started local extension host with pid 76729.
+2025-08-25 19:32:26.554 [info] Settings Sync: Account status changed from uninitialized to unavailable
+2025-08-25 19:32:28.441 [info] [perf] Render performance baseline is 19ms
+2025-08-25 19:32:31.090 [error] [Extension Host] (node:76729) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `exe --trace-warnings ...` to show where the warning was created)
+2025-08-25 19:32:33.063 [error] An unknown error occurred. Please consult the log for more details.

@@ -1,0 +1,10 @@
+2025-08-25 19:16:41.014 [warning] Via 'product.json#extensionEnabledApiProposals' extension 'ms-vsliveshare.vsliveshare' wants API proposal 'notebookCellExecutionState' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-08-25 19:16:41.025 [warning] Via 'product.json#extensionEnabledApiProposals' extension 'ms-python.gather' wants API proposal 'notebookCellExecutionState' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-08-25 19:16:41.025 [warning] Via 'product.json#extensionEnabledApiProposals' extension 'ms-python.vscode-pylance' wants API proposal 'mcpConfigurationProvider' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-08-25 19:16:41.241 [info] Started local extension host with pid 19476.
+2025-08-25 19:16:41.920 [info] Settings Sync: Account status changed from uninitialized to unavailable
+2025-08-25 19:16:43.538 [error] [Extension Host] (node:19476) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `exe --trace-warnings ...` to show where the warning was created)
+2025-08-25 19:16:43.903 [info] [perf] Render performance baseline is 17ms
+2025-08-25 19:16:44.199 [info] Auto updating outdated extensions. github.copilot-chat
+2025-08-25 19:16:45.265 [error] An unknown error occurred. Please consult the log for more details.

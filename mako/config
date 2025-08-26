@@ -1,0 +1,34 @@
+# Global settings
+font=monospace 12
+background-color=#1e1e2e
+text-color=#ffffff
+border-size=2
+border-radius=5
+padding=10
+margin=10
+anchor=top-right
+layer=overlay
+max-history=100
+default-timeout=5000
+sort=-time
+
+# Low priority (success, green)
+[urgency=low]
+background-color=#166534
+text-color=#ffffff
+border-color=#22c55e
+default-timeout=3000
+
+# Normal priority (warnings, yellow)
+[urgency=normal]
+background-color=#854d0e
+text-color=#ffffff
+border-color=#facc15
+default-timeout=5000
+
+# Critical priority (errors, red)
+[urgency=critical]
+background-color=#7f1d1d
+text-color=#ffffff
+border-color=#ef4444
+default-timeout=0

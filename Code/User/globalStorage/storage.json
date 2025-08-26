@@ -1,0 +1,83 @@
+{
+    "telemetry.sqmId": "",
+    "telemetry.machineId": "910f6bbd03c2a7e9967fb7fca02adda4213dd3f7a9d8d0b7240284653c331d61",
+    "telemetry.devDeviceId": "1c6616a7-a770-4806-b889-7d81d31af0b2",
+    "backupWorkspaces": {
+        "workspaces": [],
+        "folders": [
+            {
+                "folderUri": "file:///home/iseeyou/playwright-test"
+            }
+        ],
+        "emptyWindows": [
+            {
+                "backupFolder": "1755824410766"
+            }
+        ]
+    },
+    "windowControlHeight": 35,
+    "profileAssociations": {
+        "workspaces": {
+            "file:///home/iseeyou/playwright-test": "__default__profile__"
+        },
+        "emptyWindows": {
+            "1755824410766": "__default__profile__"
+        }
+    },
+    "windowsState": {
+        "lastActiveWindow": {
+            "folder": "file:///home/iseeyou/playwright-test",
+            "backupPath": "/home/iseeyou/.config/Code/Backups/24325ab55ca69601c9308ad3684c8b89",
+            "uiState": {
+                "mode": 1,
+                "x": 3,
+                "y": 39,
+                "width": 1914,
+                "height": 1038
+            }
+        },
+        "openedWindows": []
+    },
+    "theme": "vs-dark",
+    "themeBackground": "#1f1f1f",
+    "windowSplash": {
+        "zoomLevel": 0,
+        "baseTheme": "vs-dark",
+        "colorInfo": {
+            "foreground": "#cccccc",
+            "background": "#1f1f1f",
+            "editorBackground": "#1f1f1f",
+            "titleBarBackground": "#181818",
+            "titleBarBorder": "#2b2b2b",
+            "activityBarBackground": "#181818",
+            "activityBarBorder": "#2b2b2b",
+            "sideBarBackground": "#181818",
+            "sideBarBorder": "#2b2b2b",
+            "statusBarBackground": "#181818",
+            "statusBarBorder": "#2b2b2b",
+            "statusBarNoFolderBackground": "#1f1f1f"
+        },
+        "layoutInfo": {
+            "sideBarSide": "left",
+            "editorPartMinWidth": 220,
+            "titleBarHeight": 35,
+            "activityBarWidth": 48,
+            "sideBarWidth": 247,
+            "auxiliaryBarWidth": 262,
+            "statusBarHeight": 22,
+            "windowBorder": false
+        }
+    },
+    "windowSplashWorkspaceOverride": {
+        "layoutInfo": {
+            "sideBarWidth": 247,
+            "auxiliaryBarWidth": 262,
+            "workspaces": {
+                "1e5611c8a5f620f581dd64307640720b": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                }
+            }
+        }
+    }
+}

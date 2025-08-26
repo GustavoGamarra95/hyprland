@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Instalar primero: sudo pacman -S wl-clipboard
+# Para usar: echo "texto" | wl-copy
+
+if ! command -v wl-paste &> /dev/null; then
+    notify-send "Error" "wl-clipboard no está instalado"
+    exit 1
+fi
+
+# Obtener historial del clipboard (simulado)
+clipboard_content=$(wl-paste 2>/dev/null || echo "Clipboard vacío")
+
+if [ "$clipboard_content" = "Clipboard vacío" ]; then
+    notify-send "Clipboard" "No hay contenido en el portapapeles"
+else
+    echo "$clipboard_content" | wofi \
+        --dmenu \
+        --cache-file=/dev/null \
+        --width=400 \
+        --height=200 \
+        --prompt="Clipboard " \
+        --style ~/.config/wofi/style.css | wl-copy
+    
+    notify-send "Clipboard" "Texto copiado al portapapeles"
+fi

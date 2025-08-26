@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Opciones del power menu
+options="⏻ Apagar\n Reiniciar\n Suspender\n 󰍃 Bloquear\n󰗽 Cerrar Sesión"
+
+# Configuración específica para power menu
+chosen=$(echo -e "$options" | wofi \
+    --dmenu \
+    --cache-file=/dev/null \
+    --width=250 \
+    --height=220 \
+    --prompt="Power " \
+    --style ~/.config/wofi/powermenu.css)
+
+# Ejecutar acción seleccionada
+case $chosen in
+    "⏻ Apagar")
+        systemctl poweroff
+        ;;
+    " Reiniciar")
+        systemctl reboot
+        ;;
+    " Suspender")
+        systemctl suspend
+        ;;
+    "󰍃 Bloquear")
+        hyprlock
+        ;;
+    "󰗽 Cerrar Sesión")
+        hyprctl dispatch exit
+        ;;
+esac

@@ -1,0 +1,334 @@
+#!/bin/bash
+# ~/.config/wofi/scripts/unified-launcher
+# Wofi inteligente que hace todo: apps instaladas + búsqueda + instalación con iconos
+
+create_unified_list() {
+    # Archivo temporal para la lista completa
+    temp_file="/tmp/wofi_unified_list"
+    
+    # Limpiar archivo anterior
+    > "$temp_file"
+    
+    echo "=== APLICACIONES INSTALADAS ===" >> "$temp_file"
+    
+    # Obtener aplicaciones instaladas desde .desktop files
+    find /usr/share/applications ~/.local/share/applications -name "*.desktop" 2>/dev/null | while read desktop_file; do
+        if [[ -f "$desktop_file" ]]; then
+            # Extraer nombre, descripción e icono
+            name=$(grep "^Name=" "$desktop_file" | grep -v "Name\[" | head -1 | cut -d'=' -f2)
+            comment=$(grep "^Comment=" "$desktop_file" | grep -v "Comment\[" | head -1 | cut -d'=' -f2)
+            icon=$(grep "^Icon=" "$desktop_file" | head -1 | cut -d'=' -f2)
+            exec_cmd=$(grep "^Exec=" "$desktop_file" | head -1 | cut -d'=' -f2)
+            
+            if [[ -n "$name" && -n "$exec_cmd" ]]; then
+                # Formato: Nombre - Descripción\0icon\0nombre_icono
+                if [[ -n "$comment" ]]; then
+                    echo -e "$name - $comment\0icon\0$icon" >> "$temp_file"
+                else
+                    echo -e "$name\0icon\0$icon" >> "$temp_file"
+                fi
+            fi
+        fi
+    done
+    
+    # Separador y opciones de búsqueda/instalación con iconos predefinidos
+    echo "" >> "$temp_file"
+    echo "=== HERRAMIENTAS ===" >> "$temp_file"
+    echo -e "🔍 Buscar aplicación para instalar\0icon\0system-search" >> "$temp_file"
+    echo -e "📦 Instalar desde repositorios (pacman)\0icon\0package-x-generic" >> "$temp_file"
+    echo -e "🔶 Instalar desde AUR (yay)\0icon\0package-x-generic" >> "$temp_file"
+    echo -e "⭐ Apps populares (instalación rápida)\0icon\0starred" >> "$temp_file"
+    echo -e "💻 Abrir terminal\0icon\0terminal" >> "$temp_file"
+    echo -e "🔧 Ejecutar comando personalizado\0icon\0system-run" >> "$temp_file"
+    echo -e "📋 Gestión de paquetes\0icon\0package-x-generic" >> "$temp_file"
+    
+    echo "$temp_file"
+}
+
+# Función para ejecutar aplicación instalada
+launch_app() {
+    local app_line="$1"
+    # Extraer solo el nombre de la app (quitar descripción e icono)
+    app_name=$(echo "$app_line" | sed 's/ - .*//' | sed 's/\x0.*//')
+    
+    # Buscar el archivo .desktop correspondiente
+    desktop_file=$(find /usr/share/applications ~/.local/share/applications -name "*.desktop" -exec grep -l "^Name=$app_name$" {} \; 2>/dev/null | head -1)
+    
+    if [[ -n "$desktop_file" ]]; then
+        # Obtener comando de ejecución
+        exec_cmd=$(grep "^Exec=" "$desktop_file" | head -1 | cut -d'=' -f2 | sed 's/%[a-zA-Z]//g')
+        notify-send "Lanzando" "$app_name"
+        eval "$exec_cmd" &
+    else
+        # Intentar ejecutar directamente por nombre
+        if command -v "$app_name" >/dev/null 2>&1; then
+            "$app_name" &
+        else
+            notify-send "Error" "No se pudo ejecutar $app_name"
+        fi
+    fi
+}
+
+# Función de búsqueda e instalación
+search_and_install() {
+    search_term=$(echo "" | wofi --dmenu --prompt="🔍 Buscar app: " --width=400 --cache-file=/dev/null)
+    
+    if [[ -n "$search_term" ]]; then
+        # Crear menú de opciones de búsqueda
+        search_options="📦 Buscar en repositorios oficiales (pacman)\0icon\0package-x-generic
+🔶 Buscar en AUR (yay)\0icon\0package-x-generic
+🚀 Verificar si está instalado\0icon\0system-search
+❌ Cancelar\0icon\0process-stop"
+        
+        choice=$(echo -e "$search_options" | wofi --dmenu --prompt="Buscar '$search_term' en:" --width=450 --cache-file=/dev/null)
+        
+        case "$choice" in
+            *"repositorios oficiales"*)
+                search_pacman "$search_term"
+                ;;
+            *"AUR"*)
+                search_aur "$search_term"
+                ;;
+            *"está instalado"*)
+                check_installed "$search_term"
+                ;;
+        esac
+    fi
+}
+
+# Buscar en repositorios oficiales
+search_pacman() {
+    local term="$1"
+    notify-send "Buscando..." "Buscando '$term' en repositorios oficiales..."
+    
+    # Crear lista de resultados
+    pacman -Ss "$term" 2>/dev/null | grep -E '^[a-zA-Z0-9]' | head -15 > /tmp/pacman_search
+    
+    if [[ -s /tmp/pacman_search ]]; then
+        # Formatear para wofi con icono genérico
+        {
+            echo "=== RESULTADOS EN REPOSITORIOS OFICIALES ==="
+            sed 's/^/📦 /' /tmp/pacman_search | while read line; do
+                echo -e "$line\0icon\0package-x-generic"
+            done
+            echo ""
+            echo -e "🔄 Nueva búsqueda\0icon\0system-search"
+            echo -e "❌ Volver al menú principal\0icon\0process-stop"
+        } > /tmp/formatted_pacman
+        
+        selection=$(cat /tmp/formatted_pacman | wofi --dmenu --prompt="Instalar: " --width=700 --height=400 --cache-file=/dev/null)
+        
+        if [[ "$selection" =~ ^📦 ]]; then
+            # Extraer nombre del paquete
+            package=$(echo "$selection" | sed 's/^📦 //' | awk '{print $1}' | sed 's/\x0.*//')
+            install_package "$package" "pacman"
+        elif [[ "$selection" == *"Nueva búsqueda"* ]]; then
+            search_and_install
+        fi
+    else
+        notify-send "Sin resultados" "No se encontró '$term' en repositorios oficiales"
+        # Ofrecer buscar en AUR
+        aur_search=$(echo -e "🔶 Buscar '$term' en AUR\0icon\0package-x-generic\n❌ Volver\0icon\0process-stop" | wofi --dmenu --prompt="¿Buscar en AUR?" --width=300 --cache-file=/dev/null)
+        if [[ "$aur_search" =~ AUR ]]; then
+            search_aur "$term"
+        fi
+    fi
+    
+    rm -f /tmp/pacman_search /tmp/formatted_pacman
+}
+
+# Buscar en AUR
+search_aur() {
+    local term="$1"
+    notify-send "Buscando..." "Buscando '$term' en AUR..."
+    
+    yay -Ss "$term" 2>/dev/null | grep -E '^aur/' | head -10 > /tmp/aur_search
+    
+    if [[ -s /tmp/aur_search ]]; then
+        {
+            echo "=== RESULTADOS EN AUR ==="
+            sed 's/^/🔶 /' /tmp/aur_search | while read line; do
+                echo -e "$line\0icon\0package-x-generic"
+            done
+            echo ""
+            echo -e "🔄 Nueva búsqueda\0icon\0system-search"
+            echo -e "❌ Volver al menú principal\0icon\0process-stop"
+        } > /tmp/formatted_aur
+        
+        selection=$(cat /tmp/formatted_aur | wofi --dmenu --prompt="Instalar desde AUR: " --width=700 --height=400 --cache-file=/dev/null)
+        
+        if [[ "$selection" =~ ^🔶 ]]; then
+            package=$(echo "$selection" | sed 's/^🔶 aur\///' | awk '{print $1}' | sed 's/\x0.*//')
+            install_package "$package" "aur"
+        elif [[ "$selection" == *"Nueva búsqueda"* ]]; then
+            search_and_install
+        fi
+    else
+        notify-send "Sin resultados" "No se encontró '$term' en AUR"
+    fi
+    
+    rm -f /tmp/aur_search /tmp/formatted_aur
+}
+
+# Verificar si está instalado
+check_installed() {
+    local term="$1"
+    
+    if command -v "$term" >/dev/null 2>&1; then
+        action=$(echo -e "🚀 Ejecutar $term\0icon\0system-run\n📍 Ver información del paquete\0icon\0info\n❌ Volver\0icon\0process-stop" | wofi --dmenu --prompt="'$term' está instalado:" --width=300 --cache-file=/dev/null)
+        
+        case "$action" in
+            *"Ejecutar"*) "$term" & ;;
+            *"información"*) 
+                kitty -e bash -c "pacman -Qi $term 2>/dev/null || yay -Qi $term 2>/dev/null || echo 'Paquete no encontrado'; read" ;;
+        esac
+    else
+        notify-send "No instalado" "'$term' no está instalado"
+        search_and_install
+    fi
+}
+
+# Instalar paquete
+install_package() {
+    local package="$1"
+    local source="$2"
+    
+    confirm=$(echo -e "✅ Sí, instalar $package\0icon\0dialog-ok\n❌ No, cancelar\0icon\0process-stop" | wofi --dmenu --prompt="¿Instalar $package?" --width=350 --cache-file=/dev/null)
+    
+    if [[ "$confirm" =~ ^✅ ]]; then
+        if [[ "$source" == "pacman" ]]; then
+            kitty -e bash -c "echo 'Instalando $package...'; sudo pacman -S $package; echo 'Instalación completada. Presiona Enter...'; read"
+        else
+            kitty -e bash -c "echo 'Instalando $package desde AUR...'; yay -S $package; echo 'Instalación completada. Presiona Enter...'; read"
+        fi
+        
+        # Preguntar si quiere ejecutar la app después de instalar
+        run_after=$(echo -e "🚀 Ejecutar $package ahora\0icon\0system-run\n❌ Volver al menú\0icon\0process-stop" | wofi --dmenu --prompt="¿Ejecutar después de instalar?" --width=300 --cache-file=/dev/null)
+        
+        if [[ "$run_after" =~ ^🚀 ]]; then
+            sleep 2  # Esperar a que termine la instalación
+            "$package" &
+        fi
+    fi
+}
+
+# Apps populares para instalación rápida
+popular_apps() {
+    popular="🌐 firefox - Navegador web\0icon\0firefox
+📝 code - Visual Studio Code\0icon\0visual-studio-code
+🎵 spotify - Reproductor de música\0icon\0spotify
+💬 discord - Chat y comunicación\0icon\0discord
+🎮 steam - Plataforma de juegos\0icon\0steam
+📺 vlc - Reproductor multimedia\0icon\0vlc
+🖼️ gimp - Editor de imágenes\0icon\0gimp
+⚡ obs-studio - Software de streaming\0icon\0obs
+📊 libreoffice-fresh - Suite de oficina\0icon\0libreoffice
+🖥️ htop - Monitor del sistema\0icon\0htop
+🔧 gparted - Editor de particiones\0icon\0gparted
+📁 thunar - Gestor de archivos\0icon\0thunar
+🌍 chromium - Navegador Chromium\0icon\0chromium
+🎨 inkscape - Editor vectorial\0icon\0inkscape
+📸 flameshot - Capturas de pantalla\0icon\0flameshot
+❌ Volver al menú principal\0icon\0process-stop"
+
+    choice=$(echo -e "$popular" | wofi --dmenu --prompt="Apps populares: " --width=500 --height=450 --cache-file=/dev/null)
+    
+    if [[ "$choice" != *"Volver"* && "$choice" != *"❌"* ]]; then
+        # Extraer comando de instalación
+        case "$choice" in
+            *"firefox"*) install_package "firefox" "pacman" ;;
+            *"code"*) install_package "visual-studio-code-bin" "aur" ;;
+            *"spotify"*) install_package "spotify" "aur" ;;
+            *"discord"*) install_package "discord" "pacman" ;;
+            *"steam"*) install_package "steam" "pacman" ;;
+            *"vlc"*) install_package "vlc" "pacman" ;;
+            *"gimp"*) install_package "gimp" "pacman" ;;
+            *"obs-studio"*) install_package "obs-studio" "pacman" ;;
+            *"libreoffice"*) install_package "libreoffice-fresh" "pacman" ;;
+            *"htop"*) install_package "htop" "pacman" ;;
+            *"gparted"*) install_package "gparted" "pacman" ;;
+            *"thunar"*) install_package "thunar" "pacman" ;;
+            *"chromium"*) install_package "chromium" "pacman" ;;
+            *"inkscape"*) install_package "inkscape" "pacman" ;;
+            *"flameshot"*) install_package "flameshot" "pacman" ;;
+        esac
+    fi
+}
+
+# Gestión de paquetes
+package_management() {
+    mgmt_options="🔄 Actualizar sistema (pacman -Syu)\0icon\0system-software-update
+🗑️ Limpiar cache de paquetes\0icon\0edit-clear
+📋 Ver paquetes instalados recientemente\0icon\0package-x-generic
+🔍 Buscar paquetes huérfanos\0icon\0system-search
+⬇️ Ver paquetes instalados desde AUR\0icon\0package-x-generic
+❌ Volver al menú principal\0icon\0process-stop"
+
+    choice=$(echo -e "$mgmt_options" | wofi --dmenu --prompt="Gestión de paquetes: " --width=400 --cache-file=/dev/null)
+    
+    case "$choice" in
+        *"Actualizar sistema"*)
+            kitty -e bash -c "echo 'Actualizando sistema...'; sudo pacman -Syu; echo 'Actualización completada. Presiona Enter...'; read"
+            ;;
+        *"Limpiar cache"*)
+            kitty -e bash -c "echo 'Limpiando cache...'; sudo pacman -Sc; echo 'Cache limpiado. Presiona Enter...'; read"
+            ;;
+        *"instalados recientemente"*)
+            kitty -e bash -c "echo 'Paquetes instalados en los últimos 7 días:'; pacman -Qq | xargs pacman -Qi | grep -E '^Name|^Install Date' | paste - - | grep \$(date -d '7 days ago' '+%Y-%m-%d') | head -20; read"
+            ;;
+        *"huérfanos"*)
+            kitty -e bash -c "echo 'Paquetes huérfanos:'; pacman -Qtdq; echo 'Para eliminar: sudo pacman -Rs \$(pacman -Qtdq)'; read"
+            ;;
+        *"desde AUR"*)
+            kitty -e bash -c "echo 'Paquetes instalados desde AUR:'; pacman -Qm; read"
+            ;;
+    esac
+}
+
+# Función principal
+main() {
+    # Crear lista unificada
+    list_file=$(create_unified_list)
+    
+    # Mostrar menú principal con wofi, habilitando iconos
+    selection=$(cat "$list_file" | wofi --dmenu --prompt="Launcher 🚀: " --width=600 --height=500 --allow-images)
+    
+    # Procesar selección
+    if [[ "$selection" =~ ^=== || "$selection" == "" ]]; then
+        exit 0
+    fi
+    
+    # Remover el sufijo de icono para procesar la selección
+    selection_clean=$(echo "$selection" | sed 's/\x0.*//')
+    
+    if [[ "$selection_clean" =~ ^[A-Za-z0-9] ]]; then
+        # Es una aplicación instalada
+        launch_app "$selection_clean"
+    else
+        # Es una opción de herramientas
+        case "$selection_clean" in
+            *"Buscar aplicación"*) search_and_install ;;
+            *"repositorios (pacman)"*) 
+                term=$(echo "" | wofi --dmenu --prompt="Buscar en pacman: " --width=300 --cache-file=/dev/null)
+                [[ -n "$term" ]] && search_pacman "$term"
+                ;;
+            *"AUR (yay)"*) 
+                term=$(echo "" | wofi --dmenu --prompt="Buscar en AUR: " --width=300 --cache-file=/dev/null)
+                [[ -n "$term" ]] && search_aur "$term"
+                ;;
+            *"Apps populares"*) popular_apps ;;
+            *"Abrir terminal"*) kitty & ;;
+            *"comando personalizado"*)
+                cmd=$(echo "" | wofi --dmenu --prompt="Ejecutar comando: " --width=400 --cache-file=/dev/null)
+                [[ -n "$cmd" ]] && eval "$cmd" &
+                ;;
+            *"Gestión de paquetes"*) package_management ;;
+        esac
+    fi
+    
+    # Limpiar archivos temporales
+    rm -f "$list_file"
+}
+
+# Ejecutar función principal
+main

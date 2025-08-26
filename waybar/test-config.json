@@ -1,0 +1,9 @@
+{
+  "layer": "top",
+  "output": "eDP-1",
+  "height": 25,
+  "modules-left": ["custom/test"],
+  "custom/test": {
+    "format": "Test 📶"
+  }
+}

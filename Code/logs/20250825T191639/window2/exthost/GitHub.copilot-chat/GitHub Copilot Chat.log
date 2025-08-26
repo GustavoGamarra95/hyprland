@@ -1,0 +1,40 @@
+2025-08-25 19:32:31.568 [info] [GitExtensionServiceImpl] Initializing Git extension service.
+2025-08-25 19:32:31.568 [info] Using the Electron fetcher.
+2025-08-25 19:32:31.568 [info] [GitExtensionServiceImpl] Successfully activated the vscode.git extension.
+2025-08-25 19:32:31.568 [info] [GitExtensionServiceImpl] Enablement state of the vscode.git extension: true.
+2025-08-25 19:32:31.568 [info] [GitExtensionServiceImpl] Successfully registered Git commit message provider.
+2025-08-25 19:32:31.751 [warning] GitHub login failed
+2025-08-25 19:32:32.057 [warning] GitHub login failed
+2025-08-25 19:32:32.060 [error] Error: GitHubLoginFailed
+    at gO._authShowWarnings (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:552:55936)
+    at gO.getCopilotToken (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:552:54475)
+    at e3.getCopilotToken (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:418:24219)
+    at z_.waitForChatEnabled (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:418:26310)
+    at z_.run (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:418:26194)
+    at ZL.askToUpgradeAuthPermissions (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:418:25853): Failed to get copilot token
+2025-08-25 19:32:32.060 [error] You are not signed in to GitHub. Please sign in to use Copilot.
+2025-08-25 19:32:32.060 [warning] [LanguageModelAccess] LanguageModel/Embeddings are not available without auth token
+2025-08-25 19:32:32.060 [error] Error: GitHubLoginFailed
+    at gO._authShowWarnings (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:552:55936)
+    at gO.getCopilotToken (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:552:54475)
+    at e3.getCopilotToken (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:418:24219)
+    at sO._getAuthSession (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:549:4260)
+    at n (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:549:3693)
+    at sO._registerEmbeddings (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:549:4222)
+    at async Promise.all (index 1)
+    at async Promise.allSettled (index 1)
+    at RC.waitForActivationBlockers (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:399:1232)
+    at /home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:399:2042
+    at q9e (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:399:1822)
+    at Lb.n (file:///var/lib/snapd/snap/code/205/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:112:13382)
+    at Lb.m (file:///var/lib/snapd/snap/code/205/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:112:13345)
+    at Lb.l (file:///var/lib/snapd/snap/code/205/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:112:12801)
+2025-08-25 19:32:32.060 [warning] [LanguageModelAccess] LanguageModel/Embeddings are not available without auth token
+2025-08-25 19:32:32.060 [error] Error: GitHubLoginFailed
+    at gO._authShowWarnings (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:552:55936)
+    at gO.getCopilotToken (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:552:54475)
+    at e3.getCopilotToken (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:418:24219)
+    at sO._getAuthSession (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:549:4260)
+    at sO._prepareLanguageModelChat (/home/iseeyou/.vscode/extensions/github.copilot-chat-0.30.3/dist/extension.js:549:1196)
+    at sy.$prepareLanguageModelProvider (file:///var/lib/snapd/snap/code/205/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:25783)
+2025-08-25 19:32:32.060 [info] activationBlocker from 'languageModelAccess' took for 18ms
