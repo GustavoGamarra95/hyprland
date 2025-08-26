@@ -1,1 +1,16 @@
 github-copilot/apps.json
+!fuzzel/
+!gnomesession/
+!hypr/
+!htop/
+!ibus/
+!kde.org/
+!kitty/
+!nautilus/
+!nvim/
+!pulse/
+!rofi/
+!session/
+!swappy/
+!waybar/
+!wofi/
